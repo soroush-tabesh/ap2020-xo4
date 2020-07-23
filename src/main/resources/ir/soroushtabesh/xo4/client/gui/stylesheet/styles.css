@@ -1,0 +1,27 @@
+/*Global*/
+@font-face {
+    src: url("../font/Belweb.ttf");
+}
+
+.root {
+    -fx-font-family: "Belwe Bd BT";
+    -fx-background-size: stretch;
+    -fx-background-position: center;
+}
+
+#windowPane {
+    -fx-background-image: url("../image/mesmer.gif");
+    -fx-background-size: auto;
+    -fx-background-repeat: repeat;
+}
+
+/*****************************************************************************************/
+
+/*Login,Setting*/
+#loginPane {
+    /*-fx-background-image: url("../image/empty-bg.png");*/
+    -fx-background-size: stretch;
+    -fx-background-position: center;
+}
+
+/*****************************************************************************************/
