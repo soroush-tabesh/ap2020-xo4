@@ -1,8 +1,8 @@
-package ir.soroushtabesh.xo4.client.utils;
+package ir.soroushtabesh.xo4.server.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import ir.soroushtabesh.xo4.client.models.Config;
+import ir.soroushtabesh.xo4.server.models.Config;
 
 import java.io.File;
 import java.io.IOException;

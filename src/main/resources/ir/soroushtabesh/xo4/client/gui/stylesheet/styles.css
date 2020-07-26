@@ -9,17 +9,81 @@
     -fx-background-position: center;
 }
 
+
+.label_big {
+    -fx-font-size: 26;
+    -fx-text-fill: aliceblue;
+    -fx-effect: dropshadow(gaussian, #363636, 2, 0.8, 0, 0);
+}
+
+.label_med {
+    -fx-font-size: 22;
+    -fx-text-fill: gainsboro;
+    -fx-effect: dropshadow(gaussian, #363636, 2, 0.8, 0, 0);
+}
+
+.label_small {
+    -fx-font-size: 16;
+    -fx-text-fill: gainsboro;
+    -fx-effect: dropshadow(gaussian, #363636, 2, 0.8, 0, 0);
+}
+
+.simple_border {
+    -fx-border-color: black;
+    -fx-border-width: 2;
+    -fx-border-radius: 2;
+}
+
+.label_xsmall {
+    -fx-font-size: 10;
+    -fx-text-fill: gainsboro;
+    -fx-effect: dropshadow(gaussian, #363636, 2, 0.7, 0, 0);
+}
+
+
+.button-native1 {
+    -fx-background-color: transparent;
+    -fx-background-image: url("../image/btn1.png");
+    -fx-background-size: stretch;
+    -fx-background-position: center;
+}
+
+.button-native1:hover {
+    -fx-effect: innershadow(gaussian, orangered, 8, 0.5, 0, 0);
+}
+
+.button-native1:pressed {
+    -fx-opacity: 0.5;
+}
+
+.button-native2 {
+    -fx-background-color: transparent;
+    -fx-background-image: url("../image/btn2.png");
+    -fx-background-size: stretch;
+    -fx-background-position: center;
+}
+
+.button-native2:hover {
+    -fx-effect: innershadow(gaussian, orangered, 8, 0.5, 0, 0);
+}
+
+.button-native2:pressed {
+    -fx-opacity: 0.5;
+}
+
+
 #windowPane {
     -fx-background-image: url("../image/mesmer.gif");
-    -fx-background-size: auto;
+    -fx-background-size: 300, 300;
     -fx-background-repeat: repeat;
 }
+
 
 /*****************************************************************************************/
 
 /*Login,Setting*/
 #loginPane {
-    /*-fx-background-image: url("../image/empty-bg.png");*/
+    -fx-background-image: url("../image/bg2.png");
     -fx-background-size: stretch;
     -fx-background-position: center;
 }

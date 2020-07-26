@@ -21,7 +21,8 @@
         <property name="hibernate.dbcp.minIdle">5</property>
         <property name="hibernate.dbcp.maxWaitMillis">-1</property>
 
-        <mapping class="ir.soroushtabesh.xo4.core.models.GameStats"/>
-        <mapping class="ir.soroushtabesh.xo4.core.models.PlayerStats"/>
+        <mapping class="ir.soroushtabesh.xo4.server.models.GameStats"/>
+        <mapping class="ir.soroushtabesh.xo4.server.models.Player"/>
+        <mapping class="ir.soroushtabesh.xo4.server.models.Log"/>
     </session-factory>
 </hibernate-configuration>

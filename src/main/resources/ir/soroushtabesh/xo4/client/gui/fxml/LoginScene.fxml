@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<AnchorPane id="loginPane" fx:id="pane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+            minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" stylesheets="@../stylesheet/styles.css"
+            xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="ir.soroushtabesh.xo4.client.gui.controllers.LoginSceneController">
+    <children>
+        <VBox alignment="CENTER" layoutX="167.0" layoutY="65.0" spacing="5.0">
+            <children>
+                <Label styleClass="label_med" text="Login Page">
+                    <VBox.margin>
+                        <Insets bottom="20.0"/>
+                    </VBox.margin>
+                </Label>
+                <GridPane alignment="CENTER" hgap="10.0" vgap="5.0">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
+                        <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES"/>
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES"/>
+                    </rowConstraints>
+                    <children>
+                        <Label styleClass="label_small" text="Username:"/>
+                        <TextField fx:id="usernameField" promptText="e.g. InnKeeper" GridPane.columnIndex="1"/>
+                        <Label styleClass="label_small" text="Password:" GridPane.rowIndex="1"/>
+                        <PasswordField fx:id="passwordField" promptText="at least 3 characters" GridPane.columnIndex="1"
+                                       GridPane.rowIndex="1"/>
+                    </children>
+                    <padding>
+                        <Insets bottom="2.0" left="2.0" right="2.0" top="2.0"/>
+                    </padding>
+                </GridPane>
+                <Region layoutX="10.0" layoutY="150.0" prefHeight="7.0" prefWidth="267.0"/>
+                <Label styleClass="label_xsmall" text="Leading or trailing spaces will be ignored in username."/>
+                <Region prefHeight="20.0"/>
+                <HBox alignment="CENTER" spacing="10.0">
+                    <children>
+                        <Button mnemonicParsing="false" onAction="#signUp" styleClass="button-native2" text="Sign-up"/>
+                        <Button defaultButton="true" mnemonicParsing="false" onAction="#login"
+                                styleClass="button-native2" text="Login"/>
+                    </children>
+                </HBox>
+                <Region prefHeight="19.0" prefWidth="267.0"/>
+                <HBox alignment="CENTER_RIGHT" styleClass="simple_border">
+                    <children>
+                        <Label styleClass="label_xsmall" text="Config: "/>
+                        <Label fx:id="configLabel" layoutX="15.0" layoutY="17.0" maxWidth="120.0"
+                               styleClass="label_xsmall" text="Default" textOverrun="CENTER_ELLIPSIS"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button mnemonicParsing="false" onAction="#chooseConfig" styleClass="button-native1"
+                                text="Choose..."/>
+                    </children>
+                    <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                    </padding>
+                </HBox>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

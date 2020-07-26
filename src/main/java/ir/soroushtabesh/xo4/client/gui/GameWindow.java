@@ -1,5 +1,6 @@
 package ir.soroushtabesh.xo4.client.gui;
 
+import ir.soroushtabesh.xo4.client.gui.controllers.AudioManager;
 import ir.soroushtabesh.xo4.client.gui.controllers.GameWindowController;
 import ir.soroushtabesh.xo4.client.gui.controllers.SceneManager;
 import ir.soroushtabesh.xo4.client.utils.FXUtil;
@@ -28,8 +29,8 @@ public class GameWindow extends Application {
         gameInit();
         FXUtil.runLater(() -> {
             //todo
-//            SceneManager.getInstance().showScene(LoginScene.class);
-//            AudioManager.getInstance().startBackgroundMusic();
+            SceneManager.getInstance().showScene(LoginScene.class);
+            AudioManager.getInstance().startBackgroundMusic();
         }, 500);
     }
 
@@ -54,6 +55,13 @@ public class GameWindow extends Application {
         initSceneManager();
     }
 
+    @Override
+    public void stop() throws Exception {
+        super.stop();
+        System.out.println("GameWindow.stop");
+        AudioManager.getInstance().dispose();
+    }
+
     private void initSceneManager() {
         SceneManager sceneManager = SceneManager.init(this);
         //todo
@@ -63,7 +71,7 @@ public class GameWindow extends Application {
 //        sceneManager.addScene(new ShopScene());
 //        sceneManager.addScene(new StatusScene());
 //        sceneManager.addScene(new SettingScene());
-//        sceneManager.addScene(new LoginScene());
+        sceneManager.addScene(new LoginScene());
     }
 
     public Stage getStage() {
