@@ -25,7 +25,6 @@ public class LoginSceneController extends AbstractSceneController {
 
     @FXML
     private void signUp(ActionEvent event) {
-        //todo
         RemoteServer server = RemoteServer.getInstance();
         LoginScene currentScene = (LoginScene) getCurrentScene();
         if (!server.connect()) {
@@ -51,7 +50,6 @@ public class LoginSceneController extends AbstractSceneController {
 
     @FXML
     private void login(ActionEvent event) {
-        //todo
         RemoteServer server = RemoteServer.getInstance();
         LoginScene currentScene = (LoginScene) getCurrentScene();
         if (!server.connect()) {
@@ -89,6 +87,8 @@ public class LoginSceneController extends AbstractSceneController {
         if (file == null)
             return;
         configLabel.setText(file.getAbsolutePath());
-        RemoteServer.getInstance().setConfig(ConfigLoader.loadConfig(file));
+        RemoteServer remoteServer = RemoteServer.getInstance();
+        remoteServer.disconnect();
+        remoteServer.setConfig(ConfigLoader.loadConfig(file));
     }
 }

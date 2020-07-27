@@ -64,13 +64,8 @@ public class GameWindow extends Application {
 
     private void initSceneManager() {
         SceneManager sceneManager = SceneManager.init(this);
-        //todo
-//        sceneManager.addScene(new BoardScene());
-//        sceneManager.addScene(new CollectionScene());
-//        sceneManager.addScene(new MenuScene());
-//        sceneManager.addScene(new ShopScene());
-//        sceneManager.addScene(new StatusScene());
-//        sceneManager.addScene(new SettingScene());
+        sceneManager.addScene(new BoardScene());
+        sceneManager.addScene(new MenuScene());
         sceneManager.addScene(new LoginScene());
     }
 

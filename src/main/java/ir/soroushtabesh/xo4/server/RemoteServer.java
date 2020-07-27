@@ -2,11 +2,9 @@ package ir.soroushtabesh.xo4.server;
 
 import ir.soroushtabesh.xo4.client.PlayerManager;
 import ir.soroushtabesh.xo4.client.models.Config;
-import ir.soroushtabesh.xo4.server.command.Command;
-import ir.soroushtabesh.xo4.server.command.CommandPacket;
-import ir.soroushtabesh.xo4.server.command.Login;
-import ir.soroushtabesh.xo4.server.command.SignUp;
+import ir.soroushtabesh.xo4.server.command.*;
 import ir.soroushtabesh.xo4.server.models.GameInstance;
+import ir.soroushtabesh.xo4.server.models.PlayerBrief;
 import ir.soroushtabesh.xo4.server.utils.JSONUtil;
 
 import java.io.DataInputStream;
@@ -46,10 +44,25 @@ public class RemoteServer implements IServer {
             inputStream = new DataInputStream(socket.getInputStream());
             outputStream = new DataOutputStream(socket.getOutputStream());
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             return false;
         }
         return true;
+    }
+
+    public void disconnect() {
+        if (isConnected()) {
+            try {
+                inputStream.close();
+                outputStream.close();
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            socket = null;
+            inputStream = null;
+            outputStream = null;
+        }
     }
 
     @Override
@@ -68,16 +81,19 @@ public class RemoteServer implements IServer {
         if (!isConnected())
             return null;
         sendCommand(new Login(username, password));
-        PlayerController playerController = receiveResponse(PlayerController.class);
-        PlayerManager.getInstance().setPlayer(playerController);
-        return playerController;
+        PlayerController controller = receiveResponse(PlayerController.class);
+        if (controller == null)
+            return null;
+        controller.setServer(this);
+        PlayerManager.getInstance().setPlayer(controller);
+        return controller;
     }
 
     @Override
     public int[] getAllRunningGames() {
         if (!isConnected())
             return null;
-        return new int[0];
+        return null;
     }
 
     @Override
@@ -85,6 +101,18 @@ public class RemoteServer implements IServer {
         if (!isConnected())
             return null;
         return null;
+    }
+
+    @Override
+    public PlayerBrief[] getAllPlayers() {
+        sendCommand(new RetrievePlayers());
+        return receiveResponse(PlayerBrief[].class);
+    }
+
+    @Override
+    public PlayerBrief getPlayer(String username) {
+        sendCommand(new RetrievePlayer(username));
+        return receiveResponse(PlayerBrief.class);
     }
 
     private void sendCommand(Command command) {

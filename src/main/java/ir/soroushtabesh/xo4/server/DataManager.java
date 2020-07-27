@@ -7,6 +7,7 @@ import ir.soroushtabesh.xo4.server.utils.Logger;
 
 import java.security.SecureRandom;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DataManager {
@@ -33,6 +34,11 @@ public class DataManager {
     public IServer.Message addPlayer(String username, String password) {
         password = HashUtil.hash(password);
         Player player = new Player(username, password);
+        ///
+        player.setWin(secureRandom.nextInt(10));
+        player.setLose(secureRandom.nextInt(10));
+        player.setScore(player.getWin() - player.getLose());
+        ///
         return DBUtil.doInJPA(session -> {
             try {
                 boolean exists = session.createQuery("from Player where username=:un")
@@ -58,7 +64,18 @@ public class DataManager {
             return null;
         long token = secureRandom.nextLong();
         token2un.put(token, username);
-        return new PlayerController(player.getUsername(), token);
+        return new PlayerController(player.getBriefData(), token);
+    }
+
+    public List<Player> getAllPlayers() {
+        return DBUtil.doInJPA(session -> session.createQuery("from Player ", Player.class).list());
+    }
+
+    public Player getPlayer(String username) {
+        return DBUtil.doInJPA(session ->
+                session.createQuery("from Player where username=:un", Player.class)
+                        .setParameter("un", username).uniqueResult());
+
     }
 
 }

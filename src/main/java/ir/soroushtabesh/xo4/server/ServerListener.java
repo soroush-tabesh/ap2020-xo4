@@ -3,6 +3,7 @@ package ir.soroushtabesh.xo4.server;
 import ir.soroushtabesh.xo4.server.command.Command;
 import ir.soroushtabesh.xo4.server.command.CommandPacket;
 import ir.soroushtabesh.xo4.server.models.Config;
+import ir.soroushtabesh.xo4.server.utils.Logger;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -26,6 +27,7 @@ public class ServerListener implements Runnable {
 
     public synchronized void startServer() {
         if (!isRunning()) {
+            Logger.log("ServerListener", "server start");
             running = true;
             try {
                 serverSocket = new ServerSocket(config.getPort());

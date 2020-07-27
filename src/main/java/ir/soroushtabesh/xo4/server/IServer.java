@@ -1,6 +1,7 @@
 package ir.soroushtabesh.xo4.server;
 
 import ir.soroushtabesh.xo4.server.models.GameInstance;
+import ir.soroushtabesh.xo4.server.models.PlayerBrief;
 
 public interface IServer {
     enum Message {
@@ -14,4 +15,8 @@ public interface IServer {
     int[] getAllRunningGames();
 
     GameInstance getGame(int id);
+
+    PlayerBrief[] getAllPlayers();
+
+    PlayerBrief getPlayer(String username);
 }
