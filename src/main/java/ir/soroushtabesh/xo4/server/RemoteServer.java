@@ -90,6 +90,11 @@ public class RemoteServer implements IServer {
     }
 
     @Override
+    public void logout(long token) {
+        sendCommand(new Logout(token));
+    }
+
+    @Override
     public int[] getAllRunningGames() {
         if (!isConnected())
             return null;

@@ -67,6 +67,25 @@ public class DataManager {
         return new PlayerController(player.getBriefData(), token);
     }
 
+    public void expire(long token) {
+        token2un.remove(token);
+    }
+
+    public void setPlayerState(String username, Player.State state) {
+        Player player = getPlayer(username);
+        setPlayerState(player, state);
+    }
+
+    public void setPlayerState(Player player, Player.State state) {
+        if (player == null)
+            return;
+        DBUtil.doInJPA(session -> {
+            player.setState(state);
+            session.saveOrUpdate(player);
+            return null;
+        });
+    }
+
     public List<Player> getAllPlayers() {
         return DBUtil.doInJPA(session -> session.createQuery("from Player ", Player.class).list());
     }
@@ -76,6 +95,12 @@ public class DataManager {
                 session.createQuery("from Player where username=:un", Player.class)
                         .setParameter("un", username).uniqueResult());
 
+    }
+
+    public Player getPlayer(long token) {
+        if (token2un.containsKey(token))
+            return getPlayer(token2un.get(token));
+        return null;
     }
 
 }

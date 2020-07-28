@@ -10,6 +10,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ServerListener implements Runnable {
 
@@ -18,6 +20,7 @@ public class ServerListener implements Runnable {
     private IServer server;
     private ServerSocket serverSocket;
     private Thread thread;
+    private final Map<Socket, Long> socket2token = new HashMap<>();
 
     public ServerListener(IServer server, Config config) {
         this.config = config;
@@ -67,6 +70,14 @@ public class ServerListener implements Runnable {
         }
     }
 
+    public void registerSocket(Socket socket, long token) {
+        socket2token.put(socket, token);
+    }
+
+    public void unregisterSocket(Socket socket) {
+        socket2token.remove(socket);
+    }
+
     public synchronized boolean isRunning() {
         return running;
     }
@@ -99,11 +110,13 @@ public class ServerListener implements Runnable {
                                 + socket.getRemoteSocketAddress() + ":" + socket.getPort());
                         continue;
                     }
-                    command.visit(server, outputStream);
+                    command.visit(ServerListener.this, server, socket);
                 }
             } catch (Exception e) {
                 System.err.println("Broken pipe: " + socket.getRemoteSocketAddress() + ":" + socket.getPort());
                 try {
+                    server.logout(socket2token.getOrDefault(socket, 0L));
+                    unregisterSocket(socket);
                     socket.close();
                 } catch (IOException ioException) {
                     ioException.printStackTrace();

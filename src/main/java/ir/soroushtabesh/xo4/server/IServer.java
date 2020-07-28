@@ -12,6 +12,8 @@ public interface IServer {
 
     PlayerController login(String username, String password);
 
+    void logout(long token);
+
     int[] getAllRunningGames();
 
     GameInstance getGame(int id);

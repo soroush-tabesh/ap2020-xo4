@@ -13,7 +13,7 @@ public class Player {
 
     private String username;
     private String password;
-    private transient State state = State.OFFLINE;
+    private State state = State.OFFLINE;
     private int win, lose, score;
 
     public Player() {

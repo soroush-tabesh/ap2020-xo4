@@ -33,4 +33,8 @@ public class PlayerController {
     public IServer getServer() {
         return server;
     }
+
+    public void logout() {
+        server.logout(token);
+    }
 }

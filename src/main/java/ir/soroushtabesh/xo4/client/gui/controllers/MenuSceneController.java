@@ -2,6 +2,7 @@ package ir.soroushtabesh.xo4.client.gui.controllers;
 
 import ir.soroushtabesh.xo4.client.PlayerManager;
 import ir.soroushtabesh.xo4.client.gui.LoginScene;
+import ir.soroushtabesh.xo4.client.utils.FXUtil;
 import ir.soroushtabesh.xo4.server.PlayerController;
 import ir.soroushtabesh.xo4.server.RemoteServer;
 import ir.soroushtabesh.xo4.server.models.PlayerBrief;
@@ -20,6 +21,8 @@ import org.apache.commons.lang3.builder.CompareToBuilder;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.ResourceBundle;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MenuSceneController extends AbstractSceneController {
 
@@ -34,6 +37,8 @@ public class MenuSceneController extends AbstractSceneController {
 
     private ObservableList<PlayerBrief> briefs;
     private SortedList<PlayerBrief> sortedBriefs;
+    private Timer timer;
+    private TimerTask timerTask;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -42,7 +47,7 @@ public class MenuSceneController extends AbstractSceneController {
         sortedBriefs = new SortedList<>(briefs
                 , (o1, o2) -> new CompareToBuilder()
                 .append(o2.getScore(), o1.getScore())
-//                .append(o2.getState().ordinal(), o1.getState().ordinal())
+                .append(o2.getState().ordinal(), o1.getState().ordinal())
                 .build());
         tableView.getColumns().clear();
         TableColumn<PlayerBrief, String>
@@ -56,7 +61,7 @@ public class MenuSceneController extends AbstractSceneController {
         winColumn.setCellValueFactory(new PropertyValueFactory<>("win"));
         loseColumn.setCellValueFactory(new PropertyValueFactory<>("lose"));
         stateColumn.setCellValueFactory(new PropertyValueFactory<>("state"));
-        tableView.getColumns().addAll(Arrays.asList(usernameColumn, stateColumn, scoreColumn, winColumn, loseColumn));
+        tableView.getColumns().addAll(Arrays.asList(usernameColumn, scoreColumn, stateColumn, winColumn, loseColumn));
         tableView.getColumns().forEach(column -> column.setMinWidth(100));
         tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         Bindings.bindContent(tableView.getItems(), sortedBriefs);
@@ -65,7 +70,21 @@ public class MenuSceneController extends AbstractSceneController {
     @Override
     public void onStart(Object message) {
         super.onStart(message);
-        refreshScreen();
+        timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                refreshScreen();
+            }
+        };
+        timer = new Timer();
+        timer.schedule(timerTask, 0, 1000);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        timer.cancel();
+        timer.purge();
     }
 
     @FXML
@@ -73,12 +92,15 @@ public class MenuSceneController extends AbstractSceneController {
         RemoteServer server = RemoteServer.getInstance();
         PlayerController player = PlayerManager.getInstance().getPlayer();
         player.updateBrief();
+        PlayerBrief[] allPlayers = server.getAllPlayers();
         PlayerBrief myBrief = player.getPlayerBrief();
-        usernameLabel.setText(myBrief.getUsername());
-        wlLabel.setText(String.format("%d/%d", myBrief.getWin(), myBrief.getLose()));
-        scoreLabel.setText(myBrief.getScore() + "");
-        briefs.clear();
-        briefs.addAll(Arrays.asList(server.getAllPlayers()));
+        FXUtil.runLater(() -> {
+            usernameLabel.setText(myBrief.getUsername());
+            wlLabel.setText(String.format("%d/%d", myBrief.getWin(), myBrief.getLose()));
+            scoreLabel.setText(myBrief.getScore() + "");
+            briefs.clear();
+            briefs.addAll(Arrays.asList(allPlayers));
+        }, 0);
         System.out.println("MenuSceneController.refreshScreen");
     }
 
@@ -89,7 +111,9 @@ public class MenuSceneController extends AbstractSceneController {
 
     @FXML
     private void exitBtn(ActionEvent actionEvent) {
-        PlayerManager.getInstance().setPlayer(null);
+        PlayerManager instance = PlayerManager.getInstance();
+        instance.getPlayer().logout();
+        instance.setPlayer(null);
         SceneManager.getInstance().showScene(LoginScene.class);
     }
 }

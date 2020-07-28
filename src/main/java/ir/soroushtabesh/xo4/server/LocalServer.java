@@ -16,11 +16,21 @@ public class LocalServer implements IServer {
     @Override
     public PlayerController login(String username, String password) {
         System.out.println("LocalServer.login");
-        PlayerController controller = DataManager.getInstance().authenticate(username, password);
+        DataManager dataManager = DataManager.getInstance();
+        PlayerController controller = dataManager.authenticate(username, password);
+        dataManager.setPlayerState(username, Player.State.ONLINE);
         if (controller == null)
             return null;
         controller.setServer(this);
         return controller;
+    }
+
+    @Override
+    public void logout(long token) {
+        DataManager dataManager = DataManager.getInstance();
+        Player player = dataManager.getPlayer(token);
+        dataManager.expire(token);
+        dataManager.setPlayerState(player, Player.State.OFFLINE);
     }
 
     @Override
