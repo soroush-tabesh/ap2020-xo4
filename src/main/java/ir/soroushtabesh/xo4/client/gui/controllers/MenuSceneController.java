@@ -1,6 +1,7 @@
 package ir.soroushtabesh.xo4.client.gui.controllers;
 
 import ir.soroushtabesh.xo4.client.PlayerManager;
+import ir.soroushtabesh.xo4.client.gui.BoardScene;
 import ir.soroushtabesh.xo4.client.gui.LoginScene;
 import ir.soroushtabesh.xo4.client.utils.FXUtil;
 import ir.soroushtabesh.xo4.server.PlayerController;
@@ -106,7 +107,7 @@ public class MenuSceneController extends AbstractSceneController {
 
     @FXML
     private void newMatch(ActionEvent actionEvent) {
-
+        SceneManager.getInstance().showScene(BoardScene.class);
     }
 
     @FXML

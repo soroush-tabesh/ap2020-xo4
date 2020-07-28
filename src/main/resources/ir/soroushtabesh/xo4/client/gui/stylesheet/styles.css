@@ -78,6 +78,11 @@
     -fx-background-repeat: repeat;
 }
 
+#spButton {
+    -fx-background-image: url("../image/sp_on.png");
+    -fx-background-repeat: stretch;
+    -fx-background-size: stretch;
+}
 
 /*****************************************************************************************/
 
@@ -91,6 +96,13 @@
 /*****************************************************************************************/
 #menuPane {
     -fx-background-image: url("../image/bg1.png");
+    -fx-background-size: stretch;
+    -fx-background-position: center;
+}
+
+/*****************************************************************************************/
+#boardPane {
+    -fx-background-image: url("../image/bg2.png");
     -fx-background-size: stretch;
     -fx-background-position: center;
 }

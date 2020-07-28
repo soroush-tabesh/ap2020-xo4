@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.layout.StackPane?>
-<StackPane xmlns:fx="http://javafx.com/fxml"
-           xmlns="http://javafx.com/javafx"
-           fx:controller="ir.soroushtabesh.xo4.client.gui.controllers.GameWindowController"
-           maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+<StackPane xmlns:fx="http://javafx.com/fxml/1" fx:id="windowPane" maxHeight="-Infinity" maxWidth="-Infinity"
+           minHeight="-Infinity"
            minWidth="-Infinity" prefHeight="800.0" prefWidth="1200.0"
-           stylesheets="@../stylesheet/styles.css"
-           fx:id="windowPane">
-
-
+           stylesheets="@../stylesheet/styles.css" xmlns="http://javafx.com/javafx/11.0.1"
+           fx:controller="ir.soroushtabesh.xo4.client.gui.controllers.GameWindowController">
+    <children>
+        <Button id="spButton" fx:id="spButton" onAction="#muteButton" mnemonicParsing="false" prefHeight="50.0"
+                prefWidth="50.0"
+                translateX="570.0" translateY="370.0"/>
+    </children>
 </StackPane>
