@@ -3,6 +3,7 @@ package ir.soroushtabesh.xo4.server;
 import ir.soroushtabesh.xo4.client.PlayerManager;
 import ir.soroushtabesh.xo4.client.models.Config;
 import ir.soroushtabesh.xo4.server.command.*;
+import ir.soroushtabesh.xo4.server.models.Change;
 import ir.soroushtabesh.xo4.server.models.GameInstance;
 import ir.soroushtabesh.xo4.server.models.PlayerBrief;
 import ir.soroushtabesh.xo4.server.utils.JSONUtil;
@@ -69,8 +70,7 @@ public class RemoteServer implements IServer {
     public Message signUp(String username, String password) {
         if (!isConnected())
             return Message.ERROR;
-        sendCommand(new SignUp(username, password));
-        Message message = receiveResponse(Message.class);
+        Message message = communicate(new SignUp(username, password), Message.class);
         if (message == null)
             return Message.ERROR;
         return message;
@@ -78,10 +78,7 @@ public class RemoteServer implements IServer {
 
     @Override
     public PlayerController login(String username, String password) {
-        if (!isConnected())
-            return null;
-        sendCommand(new Login(username, password));
-        PlayerController controller = receiveResponse(PlayerController.class);
+        PlayerController controller = communicate(new Login(username, password), PlayerController.class);
         if (controller == null)
             return null;
         controller.setServer(this);
@@ -90,37 +87,63 @@ public class RemoteServer implements IServer {
     }
 
     @Override
-    public void logout(long token) {
-        sendCommand(new Logout(token));
+    public Message logout(long token) {
+        return communicate(new Logout(token), Message.class);
     }
 
     @Override
-    public int[] getAllRunningGames() {
-        if (!isConnected())
-            return null;
-        return null;
+    public int[] getAllGames() {
+        return communicate(new RetrieveGames(), int[].class);
     }
 
     @Override
-    public GameInstance getGame(int id) {
-        if (!isConnected())
-            return null;
-        return null;
+    public GameInstance getGameByID(int gid) {
+        return communicate(new RetrieveGameByID(gid), GameInstance.class);
     }
 
     @Override
     public PlayerBrief[] getAllPlayers() {
-        sendCommand(new RetrievePlayers());
-        return receiveResponse(PlayerBrief[].class);
+        return communicate(new RetrievePlayers(), PlayerBrief[].class);
     }
 
     @Override
     public PlayerBrief getPlayer(String username) {
-        sendCommand(new RetrievePlayer(username));
-        return receiveResponse(PlayerBrief.class);
+        return communicate(new RetrievePlayer(username), PlayerBrief.class);
     }
 
-    private void sendCommand(Command command) {
+    @Override
+    public GameInstance requestGame(long token) {
+        return communicate(new GameRequest(token), GameInstance.class);
+    }
+
+    @Override
+    public Message cancelGameRequest(long token) {
+        return communicate(new CancelRequest(token), Message.class);
+    }
+
+    @Override
+    public Message forfeit(long token) {
+        return communicate(new Forfeit(token), Message.class);
+    }
+
+    @Override
+    public GameInstance getGameFromToken(long token) {
+        return communicate(new RetrieveGame(token), GameInstance.class);
+    }
+
+    @Override
+    public Change play(long token, int i, int j) {
+        return communicate(new Play(token, i, j), Change.class);
+    }
+
+    private <T, E extends T> T communicate(Command<E> command, Class<T> clz) {
+        if (!isConnected())
+            return null;
+        sendCommand(command);
+        return receiveResponse(clz);
+    }
+
+    private void sendCommand(Command<?> command) {
         try {
             outputStream.writeUTF(CommandPacket.toJson(command));
         } catch (IOException e) {

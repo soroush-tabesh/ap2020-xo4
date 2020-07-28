@@ -13,20 +13,20 @@ public class CommandPacket {
         this.data = data;
     }
 
-    public CommandPacket(Class<? extends Command> clazz, String data) {
+    public CommandPacket(Class<? extends Command<?>> clazz, String data) {
         this.clazz = clazz.getName();
         this.data = data;
     }
 
-    public CommandPacket(Command command) {
+    public CommandPacket(Command<?> command) {
         clazz = command.getClass().getName();
         data = gson.toJson(command);
     }
 
-    public Command build() {
-        Command command = null;
+    public Command<?> build() {
+        Command<?> command = null;
         try {
-            Class<? extends Command> loadClass = (Class<? extends Command>) getClass().getClassLoader().loadClass(clazz);
+            Class<? extends Command<?>> loadClass = (Class<? extends Command<?>>) getClass().getClassLoader().loadClass(clazz);
             command = gson.fromJson(data, loadClass);
         } catch (Exception e) {
             e.printStackTrace();
@@ -35,7 +35,7 @@ public class CommandPacket {
         return command;
     }
 
-    public static Command fromJson(String data) {
+    public static Command<?> fromJson(String data) {
         try {
             return gson.fromJson(data, CommandPacket.class).build();
         } catch (Exception e) {
@@ -43,7 +43,7 @@ public class CommandPacket {
         }
     }
 
-    public static String toJson(Command command) {
+    public static String toJson(Command<?> command) {
         return gson.toJson(new CommandPacket(command));
     }
 }

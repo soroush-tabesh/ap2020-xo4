@@ -1,5 +1,6 @@
 package ir.soroushtabesh.xo4.server;
 
+import ir.soroushtabesh.xo4.server.models.Change;
 import ir.soroushtabesh.xo4.server.models.GameInstance;
 import ir.soroushtabesh.xo4.server.models.Player;
 import ir.soroushtabesh.xo4.server.models.PlayerBrief;
@@ -26,20 +27,21 @@ public class LocalServer implements IServer {
     }
 
     @Override
-    public void logout(long token) {
+    public Message logout(long token) {
         DataManager dataManager = DataManager.getInstance();
         Player player = dataManager.getPlayer(token);
         dataManager.expire(token);
         dataManager.setPlayerState(player, Player.State.OFFLINE);
+        return Message.SUCCESS;
     }
 
     @Override
-    public int[] getAllRunningGames() {
+    public int[] getAllGames() {
         return null;
     }
 
     @Override
-    public GameInstance getGame(int id) {
+    public GameInstance getGameByID(int gid) {
         return null;
     }
 
@@ -56,5 +58,30 @@ public class LocalServer implements IServer {
     @Override
     public PlayerBrief getPlayer(String username) {
         return DataManager.getInstance().getPlayer(username).getBriefData();
+    }
+
+    @Override
+    public GameInstance requestGame(long token) {
+        return null;
+    }
+
+    @Override
+    public Message cancelGameRequest(long token) {
+        return null;
+    }
+
+    @Override
+    public Message forfeit(long token) {
+        return null;
+    }
+
+    @Override
+    public GameInstance getGameFromToken(long token) {
+        return null;
+    }
+
+    @Override
+    public Change play(long token, int i, int j) {
+        return null;
     }
 }

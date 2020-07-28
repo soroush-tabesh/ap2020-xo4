@@ -3,6 +3,7 @@ package ir.soroushtabesh.xo4.server;
 import ir.soroushtabesh.xo4.server.command.Command;
 import ir.soroushtabesh.xo4.server.command.CommandPacket;
 import ir.soroushtabesh.xo4.server.models.Config;
+import ir.soroushtabesh.xo4.server.utils.JSONUtil;
 import ir.soroushtabesh.xo4.server.utils.Logger;
 
 import java.io.DataInputStream;
@@ -16,10 +17,10 @@ import java.util.Map;
 public class ServerListener implements Runnable {
 
     private boolean running = false;
-    private Config config;
-    private IServer server;
+    private final Config config;
+    private final IServer server;
     private ServerSocket serverSocket;
-    private Thread thread;
+    private final Thread thread;
     private final Map<Socket, Long> socket2token = new HashMap<>();
 
     public ServerListener(IServer server, Config config) {
@@ -46,7 +47,7 @@ public class ServerListener implements Runnable {
     @Override
     public void run() {
         while (isRunning()) {
-            Socket clientSocket = null;
+            Socket clientSocket;
             try {
                 clientSocket = this.serverSocket.accept();
             } catch (IOException e) {
@@ -104,13 +105,14 @@ public class ServerListener implements Runnable {
                 String s;
                 while (isRunning()) {
                     s = inputStream.readUTF();
-                    Command command = CommandPacket.fromJson(s);
+                    Command<?> command = CommandPacket.fromJson(s);
                     if (command == null) {
                         System.err.println("unknown command from "
                                 + socket.getRemoteSocketAddress() + ":" + socket.getPort());
                         continue;
                     }
-                    command.visit(ServerListener.this, server, socket);
+                    outputStream.writeUTF(JSONUtil.getGson().toJson(
+                            command.visit(ServerListener.this, server, socket)));
                 }
             } catch (Exception e) {
                 System.err.println("Broken pipe: " + socket.getRemoteSocketAddress() + ":" + socket.getPort());
