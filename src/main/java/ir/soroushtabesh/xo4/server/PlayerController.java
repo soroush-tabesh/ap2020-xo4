@@ -1,5 +1,6 @@
 package ir.soroushtabesh.xo4.server;
 
+import ir.soroushtabesh.xo4.server.models.Change;
 import ir.soroushtabesh.xo4.server.models.GameInstance;
 import ir.soroushtabesh.xo4.server.models.PlayerBrief;
 
@@ -56,5 +57,9 @@ public class PlayerController {
 
     public IServer.Message play(int i, int j) {
         return server.play(token, i, j);
+    }
+
+    public Change checkForChange() {
+        return server.checkForChange(token);
     }
 }

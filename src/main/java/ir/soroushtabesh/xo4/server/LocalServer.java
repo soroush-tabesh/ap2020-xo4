@@ -73,6 +73,7 @@ public class LocalServer implements IServer {
                 GameInstance gameInstance = new GameInstance(
                         DataManager.getInstance().tokenToUsername(waitingToken),
                         DataManager.getInstance().tokenToUsername(token));
+                DataManager dataManager = DataManager.getInstance();
 
                 token2game.put(waitingToken, gameInstance);
                 token2game.put(token, gameInstance);
@@ -80,6 +81,9 @@ public class LocalServer implements IServer {
 
                 waitingLazyResult.call(gameInstance);
                 lazyResult.call(gameInstance);
+                dataManager.setPlayerState(gameInstance.getO_username(), Player.State.PLAYING);
+                dataManager.setPlayerState(gameInstance.getX_username(), Player.State.PLAYING);
+
 
                 waitingToken = null;
                 waitingLazyResult = null;
