@@ -5,9 +5,9 @@ import ir.soroushtabesh.xo4.server.ServerListener;
 
 import java.net.Socket;
 
-public class RetrieveGames implements Command<int[]> {
+public class RetrieveRunningGames implements Command<int[]> {
     @Override
     public int[] visit(ServerListener listener, IServer server, Socket socket) {
-        return server.getAllGames();
+        return server.getRunningGames();
     }
 }

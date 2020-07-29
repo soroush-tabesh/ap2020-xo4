@@ -92,8 +92,13 @@ public class RemoteServer implements IServer {
     }
 
     @Override
-    public int[] getAllGames() {
-        return communicate(new RetrieveGames(), int[].class);
+    public int[] getOldGames() {
+        return communicate(new RetrieveOldGames(), int[].class);
+    }
+
+    @Override
+    public int[] getRunningGames() {
+        return communicate(new RetrieveRunningGames(), int[].class);
     }
 
     @Override
@@ -112,8 +117,10 @@ public class RemoteServer implements IServer {
     }
 
     @Override
-    public GameInstance requestGame(long token) {
-        return communicate(new GameRequest(token), GameInstance.class);
+    public Message requestGame(long token, LazyResult<GameInstance> lazyResult) {
+        Message message = communicate(new GameRequest(token), Message.class);
+        new Thread(() -> lazyResult.call(receiveResponse(GameInstance.class))).start();
+        return message;
     }
 
     @Override
@@ -132,8 +139,13 @@ public class RemoteServer implements IServer {
     }
 
     @Override
-    public Change play(long token, int i, int j) {
-        return communicate(new Play(token, i, j), Change.class);
+    public Message play(long token, int i, int j) {
+        return communicate(new Play(token, i, j), Message.class);
+    }
+
+    @Override
+    public Change checkForChange(long token) {
+        return communicate(new GetChange(token), Change.class);
     }
 
     private <T, E extends T> T communicate(Command<E> command, Class<T> clz) {

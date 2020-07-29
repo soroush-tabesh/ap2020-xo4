@@ -14,6 +14,7 @@ public class Logout implements Command<IServer.Message> {
 
     @Override
     public IServer.Message visit(ServerListener listener, IServer server, Socket socket) {
+        listener.unregisterSocket(socket);
         return server.logout(token);
     }
 }

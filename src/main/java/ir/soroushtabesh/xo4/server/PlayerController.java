@@ -1,6 +1,5 @@
 package ir.soroushtabesh.xo4.server;
 
-import ir.soroushtabesh.xo4.server.models.Change;
 import ir.soroushtabesh.xo4.server.models.GameInstance;
 import ir.soroushtabesh.xo4.server.models.PlayerBrief;
 
@@ -39,8 +38,8 @@ public class PlayerController {
         server.logout(token);
     }
 
-    public GameInstance requestGame() {
-        return server.requestGame(token);
+    public IServer.Message requestGame(LazyResult<GameInstance> lazyResult) {
+        return server.requestGame(token, lazyResult);
     }
 
     public IServer.Message cancelGameRequest() {
@@ -55,7 +54,7 @@ public class PlayerController {
         return server.getGameFromToken(token);
     }
 
-    public Change play(int i, int j) {
+    public IServer.Message play(int i, int j) {
         return server.play(token, i, j);
     }
 }

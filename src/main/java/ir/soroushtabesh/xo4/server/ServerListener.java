@@ -83,6 +83,17 @@ public class ServerListener implements Runnable {
         return running;
     }
 
+    public void reportBroken(Socket socket) {
+        System.err.println("Broken pipe: " + socket.getRemoteSocketAddress() + ":" + socket.getPort());
+        try {
+            server.logout(socket2token.getOrDefault(socket, 0L));
+            unregisterSocket(socket);
+            socket.close();
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+    }
+
     private class ClientWorker extends Thread {
 
         private final Socket socket;
@@ -115,14 +126,7 @@ public class ServerListener implements Runnable {
                             command.visit(ServerListener.this, server, socket)));
                 }
             } catch (Exception e) {
-                System.err.println("Broken pipe: " + socket.getRemoteSocketAddress() + ":" + socket.getPort());
-                try {
-                    server.logout(socket2token.getOrDefault(socket, 0L));
-                    unregisterSocket(socket);
-                    socket.close();
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                }
+                reportBroken(socket);
             }
         }
     }

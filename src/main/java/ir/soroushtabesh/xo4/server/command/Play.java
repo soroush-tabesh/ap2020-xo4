@@ -2,11 +2,10 @@ package ir.soroushtabesh.xo4.server.command;
 
 import ir.soroushtabesh.xo4.server.IServer;
 import ir.soroushtabesh.xo4.server.ServerListener;
-import ir.soroushtabesh.xo4.server.models.Change;
 
 import java.net.Socket;
 
-public class Play implements Command<Change> {
+public class Play implements Command<IServer.Message> {
     private final long token;
     private final int i, j;
 
@@ -17,7 +16,7 @@ public class Play implements Command<Change> {
     }
 
     @Override
-    public Change visit(ServerListener listener, IServer server, Socket socket) {
+    public IServer.Message visit(ServerListener listener, IServer server, Socket socket) {
         return server.play(token, i, j);
     }
 }

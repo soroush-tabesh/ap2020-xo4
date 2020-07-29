@@ -16,7 +16,10 @@ public class Login implements Command<PlayerController> {
 
     @Override
     public PlayerController visit(ServerListener listener, IServer server, Socket socket) {
-        return server.login(username, password);
+        PlayerController login = server.login(username, password);
+        if (login != null)
+            listener.registerSocket(socket, login.getToken());
+        return login;
     }
 
 }

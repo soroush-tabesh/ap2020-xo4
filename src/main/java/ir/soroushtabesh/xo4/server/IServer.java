@@ -6,7 +6,7 @@ import ir.soroushtabesh.xo4.server.models.PlayerBrief;
 
 public interface IServer {
     enum Message {
-        SUCCESS, EXISTS, ERROR, WRONG
+        SUCCESS, EXISTS, ERROR, WRONG, WAIT
     }
 
     Message signUp(String username, String password);
@@ -15,7 +15,9 @@ public interface IServer {
 
     Message logout(long token);
 
-    int[] getAllGames();
+    int[] getOldGames();
+
+    int[] getRunningGames();
 
     GameInstance getGameByID(int gid);
 
@@ -23,7 +25,7 @@ public interface IServer {
 
     PlayerBrief getPlayer(String username);
 
-    GameInstance requestGame(long token);
+    Message requestGame(long token, LazyResult<GameInstance> lazyResult);
 
     Message cancelGameRequest(long token);
 
@@ -31,6 +33,8 @@ public interface IServer {
 
     GameInstance getGameFromToken(long token);
 
-    Change play(long token, int i, int j);
+    Message play(long token, int i, int j);
+
+    Change checkForChange(long token);
 
 }

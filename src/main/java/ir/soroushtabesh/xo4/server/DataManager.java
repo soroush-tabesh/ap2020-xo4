@@ -1,5 +1,7 @@
 package ir.soroushtabesh.xo4.server;
 
+import ir.soroushtabesh.xo4.server.models.GameInstance;
+import ir.soroushtabesh.xo4.server.models.GameStats;
 import ir.soroushtabesh.xo4.server.models.Player;
 import ir.soroushtabesh.xo4.server.utils.DBUtil;
 import ir.soroushtabesh.xo4.server.utils.HashUtil;
@@ -23,8 +25,8 @@ public class DataManager {
         return instance;
     }
 
-    public boolean checkPlayerValidity(String username, long token) {
-        return username.equals(tokenToUsername(token));
+    public boolean checkPlayerValidity(long token) {
+        return token2un.containsKey(token);
     }
 
     public String tokenToUsername(long token) {
@@ -95,6 +97,35 @@ public class DataManager {
                 session.createQuery("from Player where username=:un", Player.class)
                         .setParameter("un", username).uniqueResult());
 
+    }
+
+    public int[] getOldGames() {
+        return DBUtil.doInJPA(session -> {
+            List<Integer> list = session.createQuery("select e.gid from GameStats e", Integer.class).list();
+            int[] res = new int[list.size()];
+            int i = 0;
+            for (Integer integer : list) {
+                res[i++] = integer;
+            }
+            return res;
+        });
+    }
+
+    public void saveGame(GameInstance gameInstance) {
+        DBUtil.doInJPA(session -> {
+            session.saveOrUpdate(new GameStats(gameInstance));
+            return null;
+        });
+    }
+
+    public GameInstance getGame(int gid) {
+        GameStats gameStat = DBUtil.doInJPA(session ->
+                session.createQuery("from GameStats where gid=:gg", GameStats.class)
+                        .setParameter("gg", gid)
+                        .uniqueResult());
+        if (gameStat == null)
+            return null;
+        return gameStat.getGameInstance();
     }
 
     public Player getPlayer(long token) {
