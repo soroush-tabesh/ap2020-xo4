@@ -46,7 +46,8 @@
                 </GridPane>
             </children>
         </VBox>
-        <Button layoutX="870.0" layoutY="481.0" mnemonicParsing="false" onAction="#forfeit" prefHeight="34.0"
+        <Button fx:id="forfeitButton" layoutX="870.0" layoutY="481.0" mnemonicParsing="false" onAction="#forfeit"
+                prefHeight="34.0"
                 prefWidth="74.0" styleClass="button-native1" text="Forfeit"/>
     </children>
 </AnchorPane>

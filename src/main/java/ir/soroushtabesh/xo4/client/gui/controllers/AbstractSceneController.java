@@ -1,6 +1,7 @@
 package ir.soroushtabesh.xo4.client.gui.controllers;
 
 import ir.soroushtabesh.xo4.client.gui.AbstractScene;
+import ir.soroushtabesh.xo4.client.gui.MenuScene;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -20,8 +21,7 @@ public abstract class AbstractSceneController implements Initializable {
 
     @FXML
     protected void backPressed(ActionEvent event) {
-        //todo
-//        SceneManager.getInstance().showScene(MenuScene.class);
+        SceneManager.getInstance().showScene(MenuScene.class);
     }
 
     @Override

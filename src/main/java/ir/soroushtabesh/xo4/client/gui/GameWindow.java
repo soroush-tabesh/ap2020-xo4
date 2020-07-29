@@ -28,7 +28,6 @@ public class GameWindow extends Application {
         if (!setUpStage(stage)) throw new RuntimeException("Could not load fxml");
         gameInit();
         FXUtil.runLater(() -> {
-            //todo
             SceneManager.getInstance().showScene(LoginScene.class);
             AudioManager.getInstance().startBackgroundMusic();
         }, 500);
