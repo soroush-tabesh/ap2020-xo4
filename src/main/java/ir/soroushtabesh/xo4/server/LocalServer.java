@@ -119,6 +119,8 @@ public class LocalServer implements IServer {
         gameInstance.setWinner(dataManager.tokenToUsername(token));
         gameInstance.setForfeited(true);
         dataManager.saveGame(gameInstance);
+        dataManager.setPlayerState(gameInstance.getO_username(), Player.State.ONLINE);
+        dataManager.setPlayerState(gameInstance.getX_username(), Player.State.ONLINE);
         return Message.SUCCESS;
     }
 
@@ -184,6 +186,8 @@ public class LocalServer implements IServer {
             gameInstance.setWinner(gameInstance.usernameToOrdinal(player.getUsername()));
             gameInstance.setActive(false);
             dataManager.saveGame(gameInstance);
+            dataManager.setPlayerState(gameInstance.getO_username(), Player.State.ONLINE);
+            dataManager.setPlayerState(gameInstance.getX_username(), Player.State.ONLINE);
         }
 
         gameInstance.setTurn(1 - gameInstance.getTurn());
