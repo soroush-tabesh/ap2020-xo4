@@ -13,6 +13,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class RemoteServer implements IServer {
 
@@ -148,11 +150,19 @@ public class RemoteServer implements IServer {
         return communicate(new GetChange(token), Change.class);
     }
 
+    private final Lock comLock = new ReentrantLock(true);
+    private final Lock recLock = new ReentrantLock(true);
+
     private <T, E extends T> T communicate(Command<E> command, Class<T> clz) {
-        if (!isConnected())
-            return null;
-        sendCommand(command);
-        return receiveResponse(clz);
+//        comLock.lock();
+        try {
+            if (!isConnected())
+                return null;
+            sendCommand(command);
+            return receiveResponse(clz);
+        } finally {
+//            comLock.unlock();
+        }
     }
 
     private void sendCommand(Command<?> command) {
@@ -164,12 +174,19 @@ public class RemoteServer implements IServer {
     }
 
     private <T> T receiveResponse(Class<T> clz) {
+//        System.out.println("waiting for " + clz.getSimpleName());
+//        recLock.lock();
+//        comLock.lock();
         try {
             String s = inputStream.readUTF();
+//            System.out.println(s);
             return JSONUtil.getGson().fromJson(s, clz);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
+        } finally {
+//            recLock.unlock();
+//            comLock.unlock();
         }
     }
 

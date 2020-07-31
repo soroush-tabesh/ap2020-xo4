@@ -20,6 +20,8 @@ public class PlayerController {
     }
 
     public void updateBrief() {
+        if (server == null || playerBrief == null)
+            return;
         playerBrief = server.getPlayer(playerBrief.getUsername());
     }
 

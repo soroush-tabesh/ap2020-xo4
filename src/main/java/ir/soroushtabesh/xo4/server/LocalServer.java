@@ -65,7 +65,9 @@ public class LocalServer implements IServer {
     public Message requestGame(long token, LazyResult<GameInstance> lazyResult) {
         lock.lock();
         try {
-            if (waitingToken == null) {
+            if (waitingToken == null
+                    || DataManager.getInstance().getPlayer(waitingToken) == null
+                    || DataManager.getInstance().getPlayer(waitingToken).getState() != Player.State.ONLINE) {
                 waitingToken = token;
                 waitingLazyResult = lazyResult;
                 return Message.WAIT;
@@ -79,14 +81,21 @@ public class LocalServer implements IServer {
                 token2game.put(token, gameInstance);
                 gid2game.put(gameInstance.getGid(), gameInstance);
 
-                waitingLazyResult.call(gameInstance);
-                lazyResult.call(gameInstance);
+                new Thread(() -> {
+                    LazyResult<GameInstance> l1 = waitingLazyResult;
+                    waitingToken = null;
+                    waitingLazyResult = null;
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    l1.call(gameInstance);
+                    lazyResult.call(gameInstance);
+                }).start();
+
                 dataManager.setPlayerState(gameInstance.getO_username(), Player.State.PLAYING);
                 dataManager.setPlayerState(gameInstance.getX_username(), Player.State.PLAYING);
-
-
-                waitingToken = null;
-                waitingLazyResult = null;
 
                 return Message.SUCCESS;
             }
@@ -99,7 +108,9 @@ public class LocalServer implements IServer {
     public Message cancelGameRequest(long token) {
         lock.lock();
         try {
-            if (waitingToken != token)
+            System.out.println("LocalServer.cancelGameRequest");
+            System.out.println(waitingToken);
+            if (waitingToken == null || waitingToken != token)
                 return Message.WRONG;
             waitingToken = null;
             waitingLazyResult.call(null);
@@ -115,12 +126,10 @@ public class LocalServer implements IServer {
         DataManager dataManager = DataManager.getInstance();
         if (gameInstance == null || !gameInstance.isActive())
             return Message.WRONG;
-        gameInstance.setWinner(dataManager.tokenToUsername(token));
+        String username = dataManager.tokenToUsername(token);
         gameInstance.setForfeited(true);
-        dataManager.saveGame(gameInstance);
-        dataManager.setPlayerState(gameInstance.getO_username(), Player.State.ONLINE);
-        dataManager.setPlayerState(gameInstance.getX_username(), Player.State.ONLINE);
-        gameInstance.setActive(false);
+        gameInstance.setWinner(1 - gameInstance.usernameToOrdinal(username));
+        endRoutine(gameInstance);
         return Message.SUCCESS;
     }
 
@@ -184,14 +193,29 @@ public class LocalServer implements IServer {
 
         if (win) {
             gameInstance.setWinner(gameInstance.usernameToOrdinal(player.getUsername()));
-            dataManager.saveGame(gameInstance);
-            dataManager.setPlayerState(gameInstance.getO_username(), Player.State.ONLINE);
-            dataManager.setPlayerState(gameInstance.getX_username(), Player.State.ONLINE);
-            gameInstance.setActive(false);
+            endRoutine(gameInstance);
         }
 
         gameInstance.setTurn(1 - gameInstance.getTurn());
         return Message.SUCCESS;
+    }
+
+    private void endRoutine(GameInstance gameInstance) {
+        DataManager dataManager = DataManager.getInstance();
+        gameInstance.setActive(false);
+        dataManager.saveGame(gameInstance);
+
+        Player playerO = dataManager.getPlayer(gameInstance.getO_username());
+        Player playerX = dataManager.getPlayer(gameInstance.getX_username());
+        playerO.setState(Player.State.ONLINE);
+        playerX.setState(Player.State.ONLINE);
+        if (gameInstance.getWinner() == GameInstance.X) {
+            playerX.setWin(playerX.getWin() + 1);
+        } else if (gameInstance.getWinner() == GameInstance.O) {
+            playerO.setWin(playerO.getWin() + 1);
+        }
+        dataManager.updatePlayer(playerO);
+        dataManager.updatePlayer(playerX);
     }
 
     private boolean checkWinner(GameInstance gameInstance, int i, int j, int vi, int vj) {

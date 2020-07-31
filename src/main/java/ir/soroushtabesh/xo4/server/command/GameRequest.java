@@ -21,6 +21,7 @@ public class GameRequest implements Command<IServer.Message> {
             try {
                 new DataOutputStream(socket.getOutputStream()).writeUTF(JSONUtil.getGson().toJson(result));
             } catch (IOException e) {
+                e.printStackTrace();
                 listener.reportBroken(socket);
             }
         });

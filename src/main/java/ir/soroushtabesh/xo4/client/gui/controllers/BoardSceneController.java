@@ -8,6 +8,7 @@ import ir.soroushtabesh.xo4.server.IServer;
 import ir.soroushtabesh.xo4.server.PlayerController;
 import ir.soroushtabesh.xo4.server.models.Change;
 import ir.soroushtabesh.xo4.server.models.GameInstance;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -21,7 +22,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 
 import java.net.URL;
-import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -46,7 +46,7 @@ public class BoardSceneController extends AbstractSceneController {
     private final AnimationPool animationPool = new AnimationPool();
 
     @FXML
-    private void forfeit(ActionEvent actionEvent) {
+    private void forfeitButton(ActionEvent actionEvent) {
         if (gameInstance.isActive())
             playerController.forfeit();
         else
@@ -65,62 +65,78 @@ public class BoardSceneController extends AbstractSceneController {
         Node button = alert.getDialogPane().lookupButton(ButtonType.OK);
         button.setDisable(true);
         alert.setTitle("Tic tac toe");
+        alert.setHeaderText("Match making");
         alert.setContentText("Finding opponent...");
 
         new Thread(() -> player.requestGame(gameInstance -> {
-            alert.close();
-            if (gameInstance == null)
+            Platform.runLater(alert::close);
+
+            if (gameInstance == null) {
+                System.err.println("Game instance is null.");
                 return;
+            }
+            System.out.println("game instance: " + gameInstance);
             this.gameInstance = gameInstance;
-            prepareGame();
+            gameInstance.init();
+
+            Platform.runLater(this::prepareGame);
         })).start();
 
-        Optional<ButtonType> res = alert.showAndWait();
-        if (res.isPresent() && res.get().equals(ButtonType.CANCEL)) {
-            IServer.Message request = player.cancelGameRequest();
-            if (request == IServer.Message.SUCCESS)
-                backPressed(null);
-        }
+        alert.showAndWait();
+        IServer.Message request = player.cancelGameRequest(); // haha! magic!
+        if (request == IServer.Message.SUCCESS)
+            backPressed(null);
     }
 
     private void prepareGame() {
         xLabel.setText(gameInstance.getX_username());
         oLabel.setText(gameInstance.getO_username());
         playerController = PlayerManager.getInstance().getPlayer();
+        int val = gameInstance.usernameToOrdinal(playerController.getPlayerBrief().getUsername());
+        showTurn(gameInstance.getTurn());
+        for (Button[] cell : cells)
+            for (Button button : cell)
+                if (val == GameInstance.X)
+                    button.getStyleClass().add("button_X");
+                else
+                    button.getStyleClass().add("button_O");
         TimerTask task = new TimerTask() {
             @Override
             public void run() {
                 Change change = PlayerManager.getInstance().getPlayer().checkForChange();
-                if (change.getActive() != null) {
-                    gameInstance.setActive(change.getActive());
-                    if (!change.getActive()) {
-                        timer.cancel();
-                        timer.purge();
-                        showTurn(-1);
-                        forfeitButton.setText("Exit");
-                    }
-                }
-                if (change.getForfeited() != null) {
-                    gameInstance.setForfeited(change.getForfeited());
-                    FXUtil.showAlertInfo("Tic Tac Toe", "Forfeit", "The game has been " +
-                            "forfeited by one of the players");
-                }
-                if (change.getWinner() != null) {
-                    gameInstance.setWinner(change.getWinner());
-                    FXUtil.showAlertInfo("Tic Tac Toe", "Game Over", "The winner is '"
-                            + gameInstance.ordinalToUsername(change.getWinner()) + "'");
-                }
-                if (change.getCi() != null) {
-                    gameInstance.setCell(change.getCi(), change.getCj(), change.getCval());
-                    setButtonImage(change.getCi(), change.getCj(), change.getCval());
-                }
-                if (change.getTurn() != null) {
-                    gameInstance.setTurn(change.getTurn());
-                    showTurn(change.getTurn());
-                }
+                if (change == null)
+                    return;
+                gameInstance.addChange(change);
+                if (change.getActive() != null && !change.getActive())
+                    Platform.runLater(() -> endRoutine());
+                if (change.getForfeited() != null)
+                    Platform.runLater(() -> showForfeit());
+                if (change.getWinner() != null)
+                    Platform.runLater(() -> showGameOver(change.getWinner()));
+                if (change.getCi() != null)
+                    Platform.runLater(() -> setButtonImage(change.getCi(), change.getCj(), change.getCval()));
+                if (change.getTurn() != null)
+                    Platform.runLater(() -> showTurn(change.getTurn()));
             }
         };
         timer.schedule(task, 0, 200);
+    }
+
+    private void endRoutine() {
+        timer.cancel();
+        timer.purge();
+        showTurn(-1);
+        forfeitButton.setText("Exit");
+    }
+
+    private void showForfeit() {
+        FXUtil.showAlertInfo("Tic Tac Toe", "Forfeit"
+                , "The game has been forfeited");
+    }
+
+    private void showGameOver(int winner) {
+        FXUtil.showAlertInfo("Tic Tac Toe", "Game Over", "The winner is '"
+                + gameInstance.ordinalToUsername(winner) + "'");
     }
 
     private void showTurn(int turn) {
@@ -128,22 +144,23 @@ public class BoardSceneController extends AbstractSceneController {
         oLabel.setEffect(null);
         xLabel.setEffect(null);
         if (turn == GameInstance.X) {
-            animationPool.startAnimation(xLabel, AnimationUtil.getPassiveBounce(xLabel));
+            animationPool.startAnimation(xLabel, AnimationUtil.getPulse(xLabel));
             xLabel.setEffect(AnimationUtil.getGlowAnimated(Color.GREEN, 20, 70));
         } else if (turn == GameInstance.O) {
-            animationPool.startAnimation(oLabel, AnimationUtil.getPassiveBounce(oLabel));
+            animationPool.startAnimation(oLabel, AnimationUtil.getPulse(oLabel));
             oLabel.setEffect(AnimationUtil.getGlowAnimated(Color.GREEN, 20, 70));
         }
     }
 
     private void setButtonImage(int i, int j, int val) {
         cells[i][j].setStyle("-fx-opacity: 1;");
+        cells[i][j].getStyleClass().removeAll("button_X", "button_Y");
         if (val == GameInstance.O)
             cells[i][j].setStyle("-fx-background-image: url('/ir/soroushtabesh/xo4/client/gui/image/O.png');");
         else if (val == GameInstance.X)
             cells[i][j].setStyle("-fx-background-image: url('/ir/soroushtabesh/xo4/client/gui/image/X.png');");
         else
-            cells[i][j].setStyle("-fx-background-image: none;");
+            cells[i][j].setBackground(null);
     }
 
     @Override
@@ -156,27 +173,8 @@ public class BoardSceneController extends AbstractSceneController {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         super.initialize(url, resourceBundle);
-        EventHandler<MouseEvent> mouseEnter = event -> {
-            if (!gameInstance.isActive())
-                return;
-            Button source = (Button) event.getSource();
-            int i = (int) source.getProperties().get("i");
-            int j = (int) source.getProperties().get("j");
-            if (gameInstance.getCell(i, j) == GameInstance.N) {
-                setButtonImage(i, j, gameInstance.usernameToOrdinal(playerController.getPlayerBrief().getUsername()));
-                cells[i][j].setStyle("-fx-opacity: 0.5;");
-            }
-        };
-        EventHandler<MouseEvent> mouseExit = event -> {
-            if (!gameInstance.isActive())
-                return;
-            Button source = (Button) event.getSource();
-            int i = (int) source.getProperties().get("i");
-            int j = (int) source.getProperties().get("j");
-            setButtonImage(i, j, gameInstance.getCell(i, j));
-        };
         EventHandler<MouseEvent> mouseClick = event -> {
-            if (!gameInstance.isActive())
+            if (gameInstance == null || !gameInstance.isActive())
                 return;
             Button source = (Button) event.getSource();
             int i = (int) source.getProperties().get("i");
@@ -193,12 +191,13 @@ public class BoardSceneController extends AbstractSceneController {
                 button.getProperties().put("i", i);
                 button.getProperties().put("j", j);
 
-                button.setOnMouseEntered(mouseEnter);
-                button.setOnMouseExited(mouseExit);
                 button.setOnMouseClicked(mouseClick);
 
-                button.setStyle("-fx-background-color: transparent; -fx-background-size: stretch;");
-                button.setMaxWidth(Double.MAX_VALUE);
+                button.setStyle("-fx-background-color: transparent;" +
+                        "-fx-background-size: stretch;" +
+                        "-fx-background-position: center");
+                button.setMaxWidth(boardGrid.getPrefWidth() / 7);
+                button.setMaxHeight(boardGrid.getPrefHeight() / 7);
                 boardGrid.add(button, j, i);
 
                 cells[i][j] = button;

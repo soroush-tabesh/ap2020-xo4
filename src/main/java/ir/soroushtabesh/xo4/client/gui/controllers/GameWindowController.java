@@ -27,7 +27,7 @@ public class GameWindowController implements Initializable {
     }
 
     @FXML
-    private void muteButton(ActionEvent actionEvent) {
+    public void muteButton(ActionEvent actionEvent) {
         DoubleProperty volumeProperty = AudioManager.getInstance().bgMusicVolumeProperty();
         if (volumeProperty.get() < 0.1) {
             volumeProperty.setValue(1);

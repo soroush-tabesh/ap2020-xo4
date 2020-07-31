@@ -37,9 +37,8 @@ public class DataManager {
         password = HashUtil.hash(password);
         Player player = new Player(username, password);
         ///
-        player.setWin(secureRandom.nextInt(10));
+        player.setWin(secureRandom.nextInt(12));
         player.setLose(secureRandom.nextInt(10));
-        player.setScore(player.getWin() - player.getLose());
         ///
         return DBUtil.doInJPA(session -> {
             try {
@@ -81,8 +80,12 @@ public class DataManager {
     public void setPlayerState(Player player, Player.State state) {
         if (player == null)
             return;
+        player.setState(state);
+        updatePlayer(player);
+    }
+
+    public void updatePlayer(Player player) {
         DBUtil.doInJPA(session -> {
-            player.setState(state);
             session.saveOrUpdate(player);
             return null;
         });

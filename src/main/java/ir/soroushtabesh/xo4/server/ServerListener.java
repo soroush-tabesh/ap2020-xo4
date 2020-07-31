@@ -84,7 +84,7 @@ public class ServerListener implements Runnable {
     }
 
     public void reportBroken(Socket socket) {
-        System.err.println("Broken pipe: " + socket.getRemoteSocketAddress() + ":" + socket.getPort());
+        System.err.println("Broken pipe: " + socket.getRemoteSocketAddress());
         try {
             server.logout(socket2token.getOrDefault(socket, 0L));
             unregisterSocket(socket);
@@ -126,6 +126,7 @@ public class ServerListener implements Runnable {
                             command.visit(ServerListener.this, server, socket)));
                 }
             } catch (Exception e) {
+                e.printStackTrace();
                 reportBroken(socket);
             }
         }

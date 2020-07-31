@@ -9,7 +9,8 @@
            stylesheets="@../stylesheet/styles.css" xmlns="http://javafx.com/javafx/11.0.1"
            fx:controller="ir.soroushtabesh.xo4.client.gui.controllers.GameWindowController">
     <children>
-        <Button id="spButton" fx:id="spButton" onAction="#muteButton" mnemonicParsing="false" prefHeight="50.0"
+        <Button id="spButton" fx:id="spButton" focusTraversable="false" onAction="#muteButton" mnemonicParsing="false"
+                prefHeight="50.0"
                 prefWidth="50.0"
                 translateX="570.0" translateY="370.0"/>
     </children>

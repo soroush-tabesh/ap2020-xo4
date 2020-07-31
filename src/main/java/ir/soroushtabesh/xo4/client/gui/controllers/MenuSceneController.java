@@ -102,7 +102,6 @@ public class MenuSceneController extends AbstractSceneController {
             briefs.clear();
             briefs.addAll(Arrays.asList(allPlayers));
         }, 0);
-        System.out.println("MenuSceneController.refreshScreen");
     }
 
     @FXML

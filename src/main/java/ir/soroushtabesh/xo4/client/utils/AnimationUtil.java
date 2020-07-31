@@ -73,19 +73,17 @@ public class AnimationUtil {
                         new KeyValue(node.scaleXProperty(), 1, AnimateFXInterpolator.EASE),
                         new KeyValue(node.scaleYProperty(), 1, AnimateFXInterpolator.EASE)
                 ),
-                new KeyFrame(Duration.millis(300),
+                new KeyFrame(Duration.millis(500),
                         new KeyValue(node.scaleXProperty(), 2, AnimateFXInterpolator.EASE),
                         new KeyValue(node.scaleYProperty(), 2, AnimateFXInterpolator.EASE)
-                ),
-                new KeyFrame(Duration.millis(600),
-                        new KeyValue(node.scaleXProperty(), 1, AnimateFXInterpolator.EASE),
-                        new KeyValue(node.scaleYProperty(), 1, AnimateFXInterpolator.EASE)
                 )
         );
         timeline.setOnFinished(event -> {
             node.setScaleX(1);
             node.setScaleY(1);
         });
+        timeline.setCycleCount(-1);
+        timeline.setAutoReverse(true);
         return timeline;
     }
 

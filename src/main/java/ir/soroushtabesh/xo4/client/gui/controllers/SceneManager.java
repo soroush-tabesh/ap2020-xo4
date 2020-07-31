@@ -71,4 +71,12 @@ public class SceneManager {
     public GameWindow getGameWindow() {
         return gameWindow;
     }
+
+    public void shutdown() {
+        if (currentScene != null) {
+            AbstractScene temp = currentScene;
+            currentScene.fadeOut();
+            FXUtil.runLater(temp::onStop, 0);
+        }
+    }
 }

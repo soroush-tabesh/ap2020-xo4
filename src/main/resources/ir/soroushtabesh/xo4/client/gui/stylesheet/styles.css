@@ -106,3 +106,26 @@
     -fx-background-size: stretch;
     -fx-background-position: center;
 }
+
+/*****************************************************************************************/
+
+.button_X {
+    -fx-background-color: transparent;
+    -fx-background-size: stretch;
+}
+
+.button_X:hover {
+    -fx-opacity: 0.2;
+    -fx-background-image: url('/ir/soroushtabesh/xo4/client/gui/image/X.png');
+}
+
+.button_O {
+    -fx-background-color: transparent;
+    -fx-background-size: stretch;
+}
+
+.button_O:hover {
+    -fx-opacity: 0.2;
+    -fx-background-image: url('/ir/soroushtabesh/xo4/client/gui/image/O.png');
+}
+

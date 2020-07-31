@@ -2,6 +2,8 @@ package ir.soroushtabesh.xo4.server.models;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class GameInstance {
@@ -18,13 +20,21 @@ public class GameInstance {
     private int winner = N;
     private boolean forfeited;
 
-    private transient final List<Change> changeList = new ArrayList<>();
+    private transient List<Change> changeList = Collections.synchronizedList(new ArrayList<>());
     private transient int fwX, fwO;
 
     public GameInstance(String x_username, String o_username) {
         this.gid = new SecureRandom().nextInt();
         this.x_username = x_username;
         this.o_username = o_username;
+        for (int[] cell : cells)
+            Arrays.fill(cell, N);
+    }
+
+    public void init() {
+        changeList = Collections.synchronizedList(new ArrayList<>());
+        fwO = 0;
+        fwX = 0;
     }
 
     public int getGid() {
@@ -141,5 +151,20 @@ public class GameInstance {
             return X;
         else
             return N;
+    }
+
+    public void addChange(Change change) {
+        if (change == null)
+            return;
+        if (change.getActive() != null)
+            setActive(change.getActive());
+        if (change.getForfeited() != null)
+            setForfeited(change.getForfeited());
+        if (change.getWinner() != null)
+            setWinner(change.getWinner());
+        if (change.getCi() != null)
+            setCell(change.getCi(), change.getCj(), change.getCval());
+        if (change.getTurn() != null)
+            setTurn(change.getTurn());
     }
 }
