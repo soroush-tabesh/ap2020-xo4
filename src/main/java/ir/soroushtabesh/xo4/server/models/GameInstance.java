@@ -76,6 +76,7 @@ public class GameInstance {
     public void setForfeited(boolean forfeited) {
         this.forfeited = forfeited;
         Change change = new Change().setForfeited(forfeited);
+        changeList.add(change);
     }
 
     public int getWinner() {
