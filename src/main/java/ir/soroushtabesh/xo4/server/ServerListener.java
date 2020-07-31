@@ -35,6 +35,7 @@ public class ServerListener implements Runnable {
             running = true;
             try {
                 serverSocket = new ServerSocket(config.getPort());
+                System.out.println(serverSocket.getLocalPort());
             } catch (IOException e) {
                 e.printStackTrace();
                 throw new RuntimeException();

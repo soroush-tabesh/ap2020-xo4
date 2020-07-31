@@ -56,9 +56,9 @@ public class RemoteServer implements IServer {
     public void disconnect() {
         if (isConnected()) {
             try {
+                socket.close();
                 inputStream.close();
                 outputStream.close();
-                socket.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
