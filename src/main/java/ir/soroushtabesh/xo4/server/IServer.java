@@ -25,7 +25,7 @@ public interface IServer {
 
     PlayerBrief getPlayer(String username);
 
-    Message requestGame(long token, LazyResult<GameInstance> lazyResult);
+    Message requestGame(long token);
 
     Message cancelGameRequest(long token);
 

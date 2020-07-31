@@ -47,6 +47,7 @@ public class BoardSceneController extends AbstractSceneController {
     private PlayerController playerController;
 
     private Timer timer = new Timer();
+    private TimerTask prepTask, checkStartTask;
     private final AnimationPool animationPool = new AnimationPool();
 
     @FXML
@@ -60,18 +61,21 @@ public class BoardSceneController extends AbstractSceneController {
     @Override
     public void onStart(Object message) {
         super.onStart(message);
+        timer = new Timer();
 
         PlayerController player = PlayerManager.getInstance().getPlayer();
         youLabel.setText(player.getPlayerBrief().getUsername());
         forfeitButton.setText("Forfeit");
         xLabel.setText("n/a");
         oLabel.setText("n/a");
+        showTurn(-1);
 
-        for (Button[] cell : cells)
+        for (Button[] cell : cells) {
             for (Button button : cell) {
                 button.getStyleClass().clear();
                 button.setStyle("-fx-background-color: transparent;");
             }
+        }
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         Node button = alert.getDialogPane().lookupButton(ButtonType.OK);
@@ -80,19 +84,42 @@ public class BoardSceneController extends AbstractSceneController {
         alert.setHeaderText("Match making");
         alert.setContentText("Finding opponent...");
 
-        new Thread(() -> player.requestGame(gameInstance -> {
-            Platform.runLater(alert::close);
-
-            if (gameInstance == null) {
-                System.err.println("Game instance is null.");
-                return;
+        prepTask = new TimerTask() {
+            @Override
+            public void run() {
+                Change change = PlayerManager.getInstance().getPlayer().checkForChange();
+                if (change == null)
+                    return;
+                gameInstance.addChange(change);
+                if (change.getActive() != null && !change.getActive())
+                    Platform.runLater(() -> endRoutine());
+                if (change.getForfeited() != null)
+                    Platform.runLater(() -> showForfeit());
+                if (change.getWinner() != null)
+                    Platform.runLater(() -> showGameOver(change.getWinner()));
+                if (change.getCi() != null)
+                    Platform.runLater(() -> setButtonImage(change.getCi(), change.getCj(), change.getCval()));
+                if (change.getTurn() != null)
+                    Platform.runLater(() -> showTurn(change.getTurn()));
             }
-            System.out.println("game instance: " + gameInstance);
-            this.gameInstance = gameInstance;
-            gameInstance.init();
-
-            Platform.runLater(this::prepareGame);
-        })).start();
+        };
+        checkStartTask = new TimerTask() {
+            @Override
+            public void run() {
+                PlayerController player = PlayerManager.getInstance().getPlayer();
+                IServer.Message message = player.requestGame();
+                if (message == IServer.Message.SUCCESS) {
+                    Platform.runLater(alert::close);
+                    checkStartTask.cancel();
+                    gameInstance = player.getMyGame();
+                    gameInstance.init();
+                    if (!gameInstance.isActive())
+                        System.err.println("fuck!");
+                    Platform.runLater(() -> prepareGame());
+                }
+            }
+        };
+        timer.schedule(checkStartTask, 0, 500);
 
         alert.showAndWait();
         IServer.Message request = player.cancelGameRequest(); // haha! magic!
@@ -112,34 +139,13 @@ public class BoardSceneController extends AbstractSceneController {
                     button.getStyleClass().add("button_X");
                 else
                     button.getStyleClass().add("button_O");
-        TimerTask task = new TimerTask() {
-            @Override
-            public void run() {
-                Change change = PlayerManager.getInstance().getPlayer().checkForChange();
-                if (change == null)
-                    return;
-                gameInstance.addChange(change);
-                if (change.getActive() != null && !change.getActive())
-                    Platform.runLater(() -> endRoutine());
-                if (change.getForfeited() != null)
-                    Platform.runLater(() -> showForfeit());
-                if (change.getWinner() != null)
-                    Platform.runLater(() -> showGameOver(change.getWinner()));
-                if (change.getCi() != null)
-                    Platform.runLater(() -> setButtonImage(change.getCi(), change.getCj(), change.getCval()));
-                if (change.getTurn() != null)
-                    Platform.runLater(() -> showTurn(change.getTurn()));
-            }
-        };
-        timer.schedule(task, 0, 500);
+        timer.schedule(prepTask, 0, 500);
     }
 
     private void endRoutine() {
-        timer.cancel();
-        timer.purge();
-        timer = new Timer();
         showTurn(-1);
         forfeitButton.setText("Exit");
+        prepTask.cancel();
     }
 
     private void showForfeit() {
@@ -185,8 +191,15 @@ public class BoardSceneController extends AbstractSceneController {
     @Override
     public void onStop() {
         super.onStop();
-        timer.cancel();
+        prepTask.cancel();
+        checkStartTask.cancel();
         timer.purge();
+        timer.cancel();
+        timer = null;
+        prepTask = null;
+        checkStartTask = null;
+        animationPool.stopAll();
+        animationPool.clearAll();
     }
 
     @Override

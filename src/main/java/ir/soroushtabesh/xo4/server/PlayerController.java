@@ -41,8 +41,8 @@ public class PlayerController {
         server.logout(token);
     }
 
-    public IServer.Message requestGame(LazyResult<GameInstance> lazyResult) {
-        return server.requestGame(token, lazyResult);
+    public IServer.Message requestGame() {
+        return server.requestGame(token);
     }
 
     public IServer.Message cancelGameRequest() {

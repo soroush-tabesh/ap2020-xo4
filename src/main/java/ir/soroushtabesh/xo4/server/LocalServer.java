@@ -17,7 +17,6 @@ public class LocalServer implements IServer {
     private final Map<Long, GameInstance> token2game = new HashMap<>();
     private final Map<Integer, GameInstance> gid2game = new HashMap<>();
     private Long waitingToken;
-    private LazyResult<GameInstance> waitingLazyResult;
 
     @Override
     public Message signUp(String username, String password) {
@@ -62,14 +61,16 @@ public class LocalServer implements IServer {
     private final Lock lock = new ReentrantLock(true);
 
     @Override
-    public Message requestGame(long token, LazyResult<GameInstance> lazyResult) {
+    public Message requestGame(long token) {
         lock.lock();
         try {
+            if (token2game.get(token) != null && token2game.get(token).isActive())
+                return Message.SUCCESS;
             if (waitingToken == null
+                    || waitingToken == token
                     || DataManager.getInstance().getPlayer(waitingToken) == null
                     || DataManager.getInstance().getPlayer(waitingToken).getState() != Player.State.ONLINE) {
                 waitingToken = token;
-                waitingLazyResult = lazyResult;
                 return Message.WAIT;
             } else {
                 GameInstance gameInstance = new GameInstance(
@@ -81,18 +82,7 @@ public class LocalServer implements IServer {
                 token2game.put(token, gameInstance);
                 gid2game.put(gameInstance.getGid(), gameInstance);
 
-                new Thread(() -> {
-                    LazyResult<GameInstance> l1 = waitingLazyResult;
-                    waitingToken = null;
-                    waitingLazyResult = null;
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    l1.call(gameInstance);
-                    lazyResult.call(gameInstance);
-                }).start();
+                waitingToken = null;
 
                 dataManager.setPlayerState(gameInstance.getO_username(), Player.State.PLAYING);
                 dataManager.setPlayerState(gameInstance.getX_username(), Player.State.PLAYING);
@@ -113,7 +103,6 @@ public class LocalServer implements IServer {
             if (waitingToken == null || waitingToken != token)
                 return Message.WRONG;
             waitingToken = null;
-            waitingLazyResult.call(null);
             return Message.SUCCESS;
         } finally {
             lock.unlock();

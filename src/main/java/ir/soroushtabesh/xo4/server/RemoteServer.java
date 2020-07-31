@@ -119,10 +119,8 @@ public class RemoteServer implements IServer {
     }
 
     @Override
-    public Message requestGame(long token, LazyResult<GameInstance> lazyResult) {
-        Message message = communicate(new GameRequest(token), Message.class);
-        new Thread(() -> lazyResult.call(receiveResponse(GameInstance.class))).start();
-        return message;
+    public Message requestGame(long token) {
+        return communicate(new GameRequest(token), Message.class);
     }
 
     @Override
@@ -151,42 +149,20 @@ public class RemoteServer implements IServer {
     }
 
     private final Lock comLock = new ReentrantLock(true);
-    private final Lock recLock = new ReentrantLock(true);
 
     private <T, E extends T> T communicate(Command<E> command, Class<T> clz) {
-//        comLock.lock();
+        comLock.lock();
         try {
             if (!isConnected())
                 return null;
-            sendCommand(command);
-            return receiveResponse(clz);
-        } finally {
-//            comLock.unlock();
-        }
-    }
-
-    private void sendCommand(Command<?> command) {
-        try {
             outputStream.writeUTF(CommandPacket.toJson(command));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private <T> T receiveResponse(Class<T> clz) {
-//        System.out.println("waiting for " + clz.getSimpleName());
-//        recLock.lock();
-//        comLock.lock();
-        try {
             String s = inputStream.readUTF();
-//            System.out.println(s);
             return JSONUtil.getGson().fromJson(s, clz);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
         } finally {
-//            recLock.unlock();
-//            comLock.unlock();
+            comLock.unlock();
         }
     }
 
