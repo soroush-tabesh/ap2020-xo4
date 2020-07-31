@@ -28,6 +28,10 @@ import java.util.TimerTask;
 
 public class BoardSceneController extends AbstractSceneController {
     @FXML
+    private Label oIndic;
+    @FXML
+    private Label xIndic;
+    @FXML
     private Button forfeitButton;
     @FXML
     private GridPane boardGrid;
@@ -42,7 +46,7 @@ public class BoardSceneController extends AbstractSceneController {
     private GameInstance gameInstance;
     private PlayerController playerController;
 
-    private final Timer timer = new Timer();
+    private Timer timer = new Timer();
     private final AnimationPool animationPool = new AnimationPool();
 
     @FXML
@@ -60,6 +64,14 @@ public class BoardSceneController extends AbstractSceneController {
         PlayerController player = PlayerManager.getInstance().getPlayer();
         youLabel.setText(player.getPlayerBrief().getUsername());
         forfeitButton.setText("Forfeit");
+        xLabel.setText("n/a");
+        oLabel.setText("n/a");
+
+        for (Button[] cell : cells)
+            for (Button button : cell) {
+                button.getStyleClass().clear();
+                button.setStyle("-fx-background-color: transparent;");
+            }
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         Node button = alert.getDialogPane().lookupButton(ButtonType.OK);
@@ -119,12 +131,13 @@ public class BoardSceneController extends AbstractSceneController {
                     Platform.runLater(() -> showTurn(change.getTurn()));
             }
         };
-        timer.schedule(task, 0, 200);
+        timer.schedule(task, 0, 500);
     }
 
     private void endRoutine() {
         timer.cancel();
         timer.purge();
+        timer = new Timer();
         showTurn(-1);
         forfeitButton.setText("Exit");
     }
@@ -141,24 +154,30 @@ public class BoardSceneController extends AbstractSceneController {
 
     private void showTurn(int turn) {
         animationPool.stopAll();
-        oLabel.setEffect(null);
-        xLabel.setEffect(null);
+        oIndic.setTextFill(Color.ALICEBLUE);
+        xIndic.setTextFill(Color.ALICEBLUE);
         if (turn == GameInstance.X) {
-            animationPool.startAnimation(xLabel, AnimationUtil.getPulse(xLabel));
-            xLabel.setEffect(AnimationUtil.getGlowAnimated(Color.GREEN, 20, 70));
+            animationPool.startAnimation(xIndic, AnimationUtil.getPulse(xIndic));
+            xIndic.setTextFill(Color.GREEN);
         } else if (turn == GameInstance.O) {
-            animationPool.startAnimation(oLabel, AnimationUtil.getPulse(oLabel));
-            oLabel.setEffect(AnimationUtil.getGlowAnimated(Color.GREEN, 20, 70));
+            animationPool.startAnimation(oIndic, AnimationUtil.getPulse(oIndic));
+            oIndic.setTextFill(Color.GREEN);
         }
     }
 
     private void setButtonImage(int i, int j, int val) {
+        cells[i][j].getStyleClass().removeAll("button_X", "button_O");
         cells[i][j].setStyle("-fx-opacity: 1;");
-        cells[i][j].getStyleClass().removeAll("button_X", "button_Y");
         if (val == GameInstance.O)
-            cells[i][j].setStyle("-fx-background-image: url('/ir/soroushtabesh/xo4/client/gui/image/O.png');");
+            cells[i][j].setStyle("-fx-background-color: transparent;" +
+                    "-fx-background-size: stretch;" +
+                    "-fx-background-position: center;" +
+                    "-fx-background-image: url('/ir/soroushtabesh/xo4/client/gui/image/O.png');");
         else if (val == GameInstance.X)
-            cells[i][j].setStyle("-fx-background-image: url('/ir/soroushtabesh/xo4/client/gui/image/X.png');");
+            cells[i][j].setStyle("-fx-background-color: transparent;" +
+                    "-fx-background-size: stretch;" +
+                    "-fx-background-position: center;" +
+                    "-fx-background-image: url('/ir/soroushtabesh/xo4/client/gui/image/X.png');");
         else
             cells[i][j].setBackground(null);
     }
@@ -195,7 +214,7 @@ public class BoardSceneController extends AbstractSceneController {
 
                 button.setStyle("-fx-background-color: transparent;" +
                         "-fx-background-size: stretch;" +
-                        "-fx-background-position: center");
+                        "-fx-background-position: center;");
                 button.setMaxWidth(boardGrid.getPrefWidth() / 7);
                 button.setMaxHeight(boardGrid.getPrefHeight() / 7);
                 boardGrid.add(button, j, i);

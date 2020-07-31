@@ -211,8 +211,10 @@ public class LocalServer implements IServer {
         playerX.setState(Player.State.ONLINE);
         if (gameInstance.getWinner() == GameInstance.X) {
             playerX.setWin(playerX.getWin() + 1);
+            playerO.setLose(playerO.getLose() + 1);
         } else if (gameInstance.getWinner() == GameInstance.O) {
             playerO.setWin(playerO.getWin() + 1);
+            playerX.setLose(playerX.getLose() + 1);
         }
         dataManager.updatePlayer(playerO);
         dataManager.updatePlayer(playerX);

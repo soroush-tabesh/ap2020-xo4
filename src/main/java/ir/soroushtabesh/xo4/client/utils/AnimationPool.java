@@ -25,7 +25,10 @@ public class AnimationPool {
     }
 
     public void stopAll() {
-        pool.forEach((node, timeline) -> timeline.stop());
+        pool.forEach((node, timeline) -> {
+            timeline.stop();
+            timeline.getOnFinished().handle(null);
+        });
     }
 
     public void clearAll() {

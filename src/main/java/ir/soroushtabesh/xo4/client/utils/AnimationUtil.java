@@ -74,8 +74,8 @@ public class AnimationUtil {
                         new KeyValue(node.scaleYProperty(), 1, AnimateFXInterpolator.EASE)
                 ),
                 new KeyFrame(Duration.millis(500),
-                        new KeyValue(node.scaleXProperty(), 2, AnimateFXInterpolator.EASE),
-                        new KeyValue(node.scaleYProperty(), 2, AnimateFXInterpolator.EASE)
+                        new KeyValue(node.scaleXProperty(), 1.5, AnimateFXInterpolator.EASE),
+                        new KeyValue(node.scaleYProperty(), 1.5, AnimateFXInterpolator.EASE)
                 )
         );
         timeline.setOnFinished(event -> {

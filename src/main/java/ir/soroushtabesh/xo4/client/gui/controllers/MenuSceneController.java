@@ -78,7 +78,7 @@ public class MenuSceneController extends AbstractSceneController {
             }
         };
         timer = new Timer();
-        timer.schedule(timerTask, 0, 1000);
+        timer.schedule(timerTask, 0, 2000);
     }
 
     @Override
