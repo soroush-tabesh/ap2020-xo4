@@ -114,7 +114,7 @@ public class BoardSceneController extends AbstractSceneController {
                     gameInstance = player.getMyGame();
                     gameInstance.init();
                     if (!gameInstance.isActive())
-                        System.err.println("fuck!");
+                        System.err.println("inactive");
                     Platform.runLater(() -> prepareGame());
                 }
             }

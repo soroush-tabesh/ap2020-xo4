@@ -99,7 +99,6 @@ public class LocalServer implements IServer {
         lock.lock();
         try {
             System.out.println("LocalServer.cancelGameRequest");
-            System.out.println(waitingToken);
             if (waitingToken == null || waitingToken != token)
                 return Message.WRONG;
             waitingToken = null;

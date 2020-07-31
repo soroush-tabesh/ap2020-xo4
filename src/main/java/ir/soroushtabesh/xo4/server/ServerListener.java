@@ -106,7 +106,8 @@ public class ServerListener implements Runnable {
                 inputStream = new DataInputStream(socket.getInputStream());
                 outputStream = new DataOutputStream(socket.getOutputStream());
             } catch (IOException e) {
-                e.printStackTrace();
+                System.err.println("cannot connect to " + socket.getRemoteSocketAddress());
+//                e.printStackTrace();
             }
         }
 
@@ -126,7 +127,7 @@ public class ServerListener implements Runnable {
                             command.visit(ServerListener.this, server, socket)));
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+//                e.printStackTrace();
                 reportBroken(socket);
             }
         }
